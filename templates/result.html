@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Результаты проверки</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: #fcfcfc;}
+    .main-card { border-radius: 1rem; box-shadow: 0 4px 24px rgba(0,0,0,0.08);}
+    .checker-title { color: #1565c0; font-weight: bold; margin-bottom: 1rem;}
+    .result-icon { font-size: 1.5rem; vertical-align: middle;}
+    .err { color: #d32f2f;}
+    .warn { color: #f9a825;}
+    .info { color: #1976d2;}
+    .success { color: #388e3c;}
+    .checklist-label { color: #777; font-size: 0.97rem; font-weight: 500;}
+    .back-btn { margin: 1.5rem 0; }
+  </style>
+</head>
+<body>
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      <div class="main-card bg-white p-4 mb-4">
+        <!-- Кнопка "Назад" вверху -->
+        <a href="/" class="btn btn-light back-btn">Назад</a>
+        <h2 class="checker-title">Результаты анализа</h2>
+        <div class="row">
+          <div class="col-md-6">
+            <span class="checklist-label mb-2 d-block">Замечания и рекомендации</span>
+            <ul class="list-group">
+              {% for item in report %}
+                <li class="list-group-item d-flex align-items-start border-0">
+                  {% if item.status == "error" %}
+                    <span class="result-icon err">&#10060;</span>
+                  {% elif item.status == "warn" %}
+                    <span class="result-icon warn">&#9888;&#65039;</span>
+                  {% elif item.status == "success" %}
+                    <span class="result-icon success">&#9989;</span>
+                  {% else %}
+                    <span class="result-icon info">&#128712;</span>
+                  {% endif %}
+                  <span class="ms-2">{{ item.msg }}</span>
+                </li>
+              {% endfor %}
+            </ul>
+            <!-- Кнопка "Назад" внизу -->
+            <a href="/" class="btn btn-light back-btn mt-4">Назад</a>
+          </div>
+          <div class="col-md-6">
+            <span class="checklist-label mb-2 d-block">Набор требований журнала</span>
+            <ul>
+              <li>В первой строке рукописи указывается УДК.</li>
+              <li>Через строку — сведения об авторах (инициалы, фамилия, организация, город, страна, e-mail, ORCID; по образцу).</li>
+              <li>Название статьи печатается прописными буквами, шрифт полужирный, по центру, 14 пт, Times New Roman.</li>
+              <li>Аннотация на русском языке (структурированная, до 250 слов, включает: актуальность, цель, методы, результаты, выводы).</li>
+              <li>Ключевые слова на русском языке (3–15 слов через запятую, без точки в конце).</li>
+              <li>Аннотация и ключевые слова на английском языке (Abstract, Key words).</li>
+              <li>Структура статьи: Введение, Материалы и методы, Результаты исследования, Заключение.</li>
+              <li>Оформление таблиц и рисунков по требованиям: подписи под рисунками, шрифт 12 пт, разрешение рисунков ≥ 300 dpi.</li>
+              <li>Список литературы оформляется по ГОСТ Р 7.0.7–2021, в алфавитном порядке; не менее 50% — современные зарубежные источники.</li>
+              <li>References на английском языке в конце статьи.</li>
+              <li>Все текстовые элементы: Times New Roman, 14 пт, межстрочный интервал 1,5, абзацный отступ 1,25 см, поля 2,5 см.</li>
+              <li>В тексте должны быть ссылки на литературу в квадратных скобках [1], [2] и т.д.</li>
+              <li>Объём статьи: 20 000–40 000 знаков с пробелами.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="text-center text-muted small">
+        &copy; research-helper 2025
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
