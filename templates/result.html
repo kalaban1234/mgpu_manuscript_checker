@@ -43,6 +43,10 @@
               </div>
             {% endfor %}
 
+            {% if not report %}
+              <p style="color: green; font-weight: bold;">Замечаний не найдено!</p>
+            {% endif %}
+
             <!-- Кнопка "Назад" внизу -->
             <a href="/" class="btn btn-light back-btn mt-4">Назад</a>
           </div>
