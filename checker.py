@@ -83,13 +83,13 @@ def check_docx(file_bytes):
             font_sizes = [r.font.size.pt if r.font.size else None for r in p.runs if r.text.strip()]
             bolds = [r.bold for r in p.runs if r.text.strip()]
             if any(f != "Times New Roman" for f in font_names):
-                report.append({"status": "warn", "msg": f"ФИО автора '{text}' должен быть Times New Roman", "section": "Оформление статьи"})
+                report.append({"status": "error", "msg": f"ФИО автора '{text}' должен быть Times New Roman", "section": "Оформление статьи"})
             if any(s != 14 for s in font_sizes):
-                report.append({"status": "warn", "msg": f"ФИО автора '{text}' должен быть 14 пт", "section": "Оформление статьи"})
+                report.append({"status": "error", "msg": f"ФИО автора '{text}' должен быть 14 пт", "section": "Оформление статьи"})
             if not all(bolds):
-                report.append({"status": "warn", "msg": f"ФИО автора '{text}' должен быть полужирным (bold)", "section": "Оформление статьи"})
+                report.append({"status": "error", "msg": f"ФИО автора '{text}' должен быть полужирным (bold)", "section": "Оформление статьи"})
             if p.alignment not in [None, 0]:
-                report.append({"status": "warn", "msg": f"ФИО автора '{text}' должен быть по левому краю", "section": "Оформление статьи"})
+                report.append({"status": "error", "msg": f"ФИО автора '{text}' должен быть по левому краю", "section": "Оформление статьи"})
             authors_end = i + 1
         else:
             break
@@ -108,15 +108,15 @@ def check_docx(file_bytes):
             found_title = True
             if any(f != "Times New Roman" for f in font_names) or any(s != 14 for s in font_sizes):
                 report.append(
-                    {"status": "warn", "msg": "Название статьи должно быть Times New Roman 14 пт, полужирным", "section": "Оформление статьи"})
+                    {"status": "error", "msg": "Название статьи должно быть Times New Roman 14 пт, полужирным", "section": "Оформление статьи"})
             break
         else:
             if p.alignment != 1:
-                report.append({"status": "warn", "msg": "Название статьи должно быть по центру", "section": "Оформление статьи"})
+                report.append({"status": "error", "msg": "Название статьи должно быть по центру", "section": "Оформление статьи"})
             if not all(bolds):
-                report.append({"status": "warn", "msg": "Название статьи должно быть полужирным (bold)", "section": "Оформление статьи"})
+                report.append({"status": "error", "msg": "Название статьи должно быть полужирным (bold)", "section": "Оформление статьи"})
             if any(f != "Times New Roman" for f in font_names) or any(s != 14 for s in font_sizes):
-                report.append({"status": "warn", "msg": "Название статьи должно быть Times New Roman 14 пт", "section": "Оформление статьи"})
+                report.append({"status": "error", "msg": "Название статьи должно быть Times New Roman 14 пт", "section": "Оформление статьи"})
             break
     if not found_title:
         report.append({"status": "error",
@@ -147,7 +147,7 @@ def check_docx(file_bytes):
                 break
         if wrong_size:
             report.append({
-                "status": "warn",
+                "status": "error",
                 "msg": f"В абзаце найден неверный размер шрифта ({wrong_size} пт): «{p.text[:40]}...». Ожидалось 14 пт.",
                 "section": "Оформление статьи"
             })
@@ -161,7 +161,7 @@ def check_docx(file_bytes):
             continue
         if p.alignment not in [WD_ALIGN_PARAGRAPH.JUSTIFY]:
             report.append({
-                "status": "warn",
+                "status": "error",
                 "msg": f"В абзаце выравнивание должно быть по ширине страницы: «{p.text[:40]}...»",
                 "section": "Оформление статьи"
             })
@@ -178,7 +178,7 @@ def check_docx(file_bytes):
             # Для подписи к рисунку допускается кегль 12
             if any(s != 12 for s in font_sizes):
                 report.append(
-                    {"status": "warn", "msg": f"Подпись к рисунку '{p.text.strip()[:30]}...' должна быть 12 кеглем", "section": "Оформление статьи"})
+                    {"status": "error", "msg": f"Подпись к рисунку '{p.text.strip()[:30]}...' должна быть 12 кеглем", "section": "Оформление статьи"})
 
     drawing_refs = set()
     for idx, p in enumerate(paragraphs):
@@ -192,13 +192,13 @@ def check_docx(file_bytes):
     missed_in_text = drawing_captions - drawing_refs
     if missed_in_text:
         missed_str = ", ".join(sorted(missed_in_text))
-        report.append({"status": "warn", "msg": f"Нет ссылок на рисунки {missed_str} в тексте", "section": "Оформление статьи"})
+        report.append({"status": "error", "msg": f"Нет ссылок на рисунки {missed_str} в тексте", "section": "Оформление статьи"})
 
     missed_in_captions = drawing_refs - drawing_captions
     if missed_in_captions:
         missed_str = ", ".join(sorted(missed_in_captions))
         report.append(
-            {"status": "warn", "msg": f"Есть ссылки на рисунки {missed_str} в тексте, но нет соответствующих подписей", "section": "Оформление статьи"})
+            {"status": "error", "msg": f"Есть ссылки на рисунки {missed_str} в тексте, но нет соответствующих подписей", "section": "Оформление статьи"})
 
     # --- 5. Проверка объема статьи (только до списка литературы) ---
     main_text = ""
@@ -228,11 +228,11 @@ def check_docx(file_bytes):
         font_names = [r.font.name for r in biblio_p.runs if r.text.strip()]
         font_sizes = [r.font.size.pt if r.font.size else None for r in biblio_p.runs if r.text.strip()]
         if any(f != "Times New Roman" for f in font_names) or any(s != 14 for s in font_sizes):
-            report.append({"status": "warn", "msg": f"Заголовок '{biblio_title}' должен быть Times New Roman 14 пт", "section": "Список источников"})
+            report.append({"status": "error", "msg": f"Заголовок '{biblio_title}' должен быть Times New Roman 14 пт", "section": "Список источников"})
         if not all(b for b in biblio_p.runs if b.text.strip()):
-            report.append({"status": "warn", "msg": f"Заголовок '{biblio_title}' должен быть полужирным (bold)", "section": "Список источников"})
+            report.append({"status": "error", "msg": f"Заголовок '{biblio_title}' должен быть полужирным (bold)", "section": "Список источников"})
         if biblio_p.alignment != WD_ALIGN_PARAGRAPH.CENTER:
-            report.append({"status": "warn", "msg": f"Заголовок '{biblio_title}' должен быть по центру", "section": "Список источников"})
+            report.append({"status": "error", "msg": f"Заголовок '{biblio_title}' должен быть по центру", "section": "Список источников"})
         # Название должно быть строго "Список источников"
         if biblio_title.lower() != "список источников":
             report.append({"status": "error", "msg": "Название раздела должно быть строго 'Список источников'", "section": "Список источников"})
@@ -252,7 +252,7 @@ def check_docx(file_bytes):
                 for run in p.runs:
                     if run.text.strip() and run.font.size and run.font.size.pt != 12:
                         report.append({
-                            "status": "warn",
+                            "status": "error",
                             "msg": f"Подпись к рисунку в списке должна быть 12 пт: «{run.text[:40]}...»",
                             "section": "Список источников"
                         })
@@ -269,20 +269,20 @@ def check_docx(file_bytes):
                             break
             if has_size and wrong_size:
                 report.append({
-                    "status": "warn",
+                    "status": "error",
                     "msg": f"В абзаце найден неверный размер шрифта ({wrong_size} пт): «{p.text[:40]}...». Ожидалось 14 пт.",
                     "section": "Список источников"
                 })
             elif not has_size:
                 report.append({
-                    "status": "warn",
+                    "status": "error",
                     "msg": f"В абзаце не удалось определить размер шрифта: «{p.text[:40]}...». Ожидалось 14 пт.",
                     "section": "Список источников"
                 })
             # Проверка выравнивания абзаца
             if p.alignment != WD_ALIGN_PARAGRAPH.JUSTIFY:
                 report.append({
-                    "status": "warn",
+                    "status": "error",
                     "msg": f"В абзаце выравнивание должно быть по ширине страницы: «{p.text[:40]}...»",
                     "section": "Список источников"
                 })
@@ -296,9 +296,9 @@ def check_docx(file_bytes):
             font_names = [r.font.name for r in p.runs if r.text.strip()]
             font_sizes = [r.font.size.pt if r.font.size else None for r in p.runs if r.text.strip()]
             if any(f != "Times New Roman" for f in font_names) or any(s != 14 for s in font_sizes):
-                report.append({"status": "warn", "msg": "Заголовок 'References' должен быть Times New Roman 14 пт", "section": "Список источников"})
+                report.append({"status": "error", "msg": "Заголовок 'References' должен быть Times New Roman 14 пт", "section": "Список источников"})
             if p.alignment != 1:
-                report.append({"status": "warn", "msg": "Заголовок 'References' должен быть по центру", "section": "Список источников"})
+                report.append({"status": "error", "msg": "Заголовок 'References' должен быть по центру", "section": "Список источников"})
             break
     if not has_references:
         report.append({"status": "error", "msg": "В тексте отсутствует раздел 'References'", "section": "Список источников"})
@@ -335,81 +335,116 @@ def check_docx(file_bytes):
         if sec not in found_sections_map:
             # Пишем специальную ошибку с указанием на неправильное написание
             report.append({
-                "status": "warn",
+                "status": "error",
                 "msg": f"В тексте отсутствует раздел '{sec.title()}' или он написан неверно",
                 "section": "Структура"
             })
     # УБИРАЕМ ДУБЛЬ: больше не пишем про строгое соответствие "Список источников" в предыдущем блоке!
 
-    # --- Новый блок: Корректная проверка аннотаций и ключевых слов как диапазонов ---
+    # --- Блок: проверка аннотаций и ключевых слов ---
+    annotation_ru = extract_annotation_block(paragraphs, "аннотация", STOP_HEADER_PATTERNS)
+    annotation_en = extract_annotation_block(paragraphs, "abstract", STOP_HEADER_PATTERNS)
 
-    def get_block_text(paragraphs, start_idx, stop_headers):
-        """
-        Возвращает все строки после start_idx, пока не встретится абзац,
-        начинающийся на один из stop_headers.
-        """
-        block = []
-        for p in paragraphs[start_idx + 1:]:
-            text = p.text.strip()
-            if not text:
-                continue
-            # Если абзац начинается на любой заголовок — стоп!
-            if any(text.lower().startswith(h) for h in stop_headers):
+    if annotation_ru:
+        word_count_ru = len(re.findall(r"\w+", annotation_ru))
+        if word_count_ru > 250:
+            report.append({
+                "status": "error",
+                "msg": f"Аннотация на русском превышает 250 слов: {word_count_ru} слов",
+                "section": "Аннотация"
+            })
+    else:
+        report.append({
+            "status": "error",
+            "msg": "В тексте отсутствует аннотация на русском языке",
+            "section": "Аннотация"
+        })
+
+    if annotation_en:
+        word_count_en = len(re.findall(r"\w+", annotation_en))
+        if word_count_en > 250:
+            report.append({
+                "status": "error",
+                "msg": f"Abstract превышает 250 слов: {word_count_en} слов",
+                "section": "Аннотация"
+            })
+    else:
+        report.append({
+            "status": "error",
+            "msg": "В тексте отсутствует аннотация на английском языке (Abstract)",
+            "section": "Аннотация"
+        })
+
+    # --- Ключевые слова ---
+    def extract_keywords_block(paragraphs, header, stop_header_patterns):
+        start = -1
+        header_pattern = re.compile(rf"^{header}[\s\.\:\-]*", re.IGNORECASE)
+        for i, p in enumerate(paragraphs):
+            text = p.text.strip().lower()
+            if header_pattern.match(text):
+                start = i
                 break
-            block.append(text)
-        return " ".join(block)
+        if start == -1:
+            return ""
+        block = []
+        # Первая строка — сразу после "ключевые слова"/"keywords"
+        first_line = paragraphs[start].text.strip()
+        after_header = re.sub(rf"^{header}[\.\:\-\s]*", "", first_line, flags=re.IGNORECASE).strip()
+        if after_header:
+            block.append(after_header)
+        # Теперь захватываем следующие абзацы только если они похожи на список keywords (много запятых и мало слов)
+        for p in paragraphs[start + 1:]:
+            txt = p.text.strip()
+            # Стоп-заголовок — выходим
+            if txt and any(re.match(pattern, txt.lower()) for pattern in stop_header_patterns):
+                break
+            # Если строка содержит хотя бы одну запятую и не длиннее 25 слов, берем ее
+            if txt and (txt.count(',') >= 1 and len(re.findall(r'\w+', txt)) < 25):
+                block.append(txt)
+            else:
+                break
+        # Объединяем всё найденное через пробел
+        return " ".join([x for x in block if x])
 
-    stop_headers = [
-        "ключевые слова", "keywords", "abstract", "введение", "материалы и методы",
-        "результаты", "заключение", "список источников", "сведения об авторах", "references"
-    ]
-
-    annotation_ru = ""
-    annotation_en = ""
-    keywords_ru_block = ""
-    keywords_en_block = ""
-    for i, p in enumerate(paragraphs):
-        text = p.text.strip().lower()
-        if text.startswith("аннотация"):
-            annotation_ru = get_block_text(paragraphs, i, stop_headers)
-        if text.startswith("abstract"):
-            annotation_en = get_block_text(paragraphs, i, stop_headers)
-        if is_keywords_ru(text):
-            keywords_ru_block = get_block_text(paragraphs, i, stop_headers)
-            # если ключевые слова в одной строке — парсим только её
-            if not keywords_ru_block:
-                keywords_ru_block = p.text.split(":", 1)[-1] if ":" in p.text else ""
-        if is_keywords_en(text):
-            keywords_en_block = get_block_text(paragraphs, i, stop_headers)
-            if not keywords_en_block:
-                keywords_en_block = p.text.split(":", 1)[-1] if ":" in p.text else ""
-
-    def extract_section_text(paragraphs, idx, header):
-        """
-        Ищет текст после header: в одной строке или сразу в следующем абзаце.
-        """
-        p = paragraphs[idx]
-        text = p.text.strip()
-        if text.lower().startswith(header):
-            colon_idx = text.find(":")
-            # В одной строке
-            if colon_idx != -1 and colon_idx + 1 < len(text):
-                return text[colon_idx + 1:].strip()
-            # В следующем абзаце
-            if idx + 1 < len(paragraphs):
-                next_text = paragraphs[idx + 1].text.strip()
-                # Не следующий заголовок
-                if next_text and not any(next_text.lower().startswith(h) for h in stop_headers):
-                    return next_text
-        return ""
-
-    # Удалено: старое извлечение keywords_ru и keywords_en, используем только keywords_ru_block и keywords_en_block
-
-    def count_words(text):
-        return len(re.findall(r"\w+", text))
+    keywords_ru_block = extract_keywords_block(paragraphs, "ключевые слова", STOP_HEADER_PATTERNS)
+    keywords_en_block = extract_keywords_block(paragraphs, "keywords", STOP_HEADER_PATTERNS)
 
     def count_keywords(text):
+        # Используй только запятые или точки с запятыми как разделители
         return len([x.strip() for x in text.replace('\n', ',').replace(';', ',').split(",") if x.strip()])
+
+    if keywords_ru_block:
+        num = count_keywords(keywords_ru_block)
+        if num < 3 or num > 15:
+            report.append({
+                "status": "error",
+                "msg": f"В русском языке количество ключевых слов вне диапазона 3–15 (найдено: {num})",
+                "section": "Ключевые слова"
+            })
+    else:
+        report.append({
+            "status": "error",
+            "msg": "В тексте отсутствует блок ключевых слов на русском языке",
+            "section": "Ключевые слова"
+        })
+
+    if keywords_en_block:
+        num = count_keywords(keywords_en_block)
+        if num < 3 or num > 15:
+            report.append({
+                "status": "error",
+                "msg": f"В английском языке количество ключевых слов вне диапазона 3–15 (найдено: {num})",
+                "section": "Ключевые слова"
+            })
+    else:
+        report.append({
+            "status": "error",
+            "msg": "В тексте отсутствует блок ключевых слов на английском языке",
+            "section": "Ключевые слова"
+        })
+    # В самом конце: преобразуем все статусы к "error"
+    for item in report:
+        item['status'] = 'error'
     return report
 def extract_annotation_block(paragraphs, header, stop_header_patterns):
     start = -1
@@ -444,13 +479,13 @@ def extract_annotation_block(paragraphs, header, stop_header_patterns):
         word_count_ru = len(re.findall(r"\w+", annotation_ru))
         if word_count_ru > 250:
             report.append({
-                "status": "warn",
+                "status": "error",
                 "msg": f"Аннотация на русском превышает 250 слов: {word_count_ru} слов",
                 "section": "Аннотация"
             })
     else:
         report.append({
-            "status": "warn",
+            "status": "error",
             "msg": "В тексте отсутствует аннотация на русском языке",
             "section": "Аннотация"
         })
@@ -459,45 +494,57 @@ def extract_annotation_block(paragraphs, header, stop_header_patterns):
         word_count_en = count_words(annotation_en)
         if word_count_en > 250:
             report.append({
-                "status": "warn",
+                "status": "error",
                 "msg": f"Abstract превышает 250 слов: {word_count_en} слов",
                 "section": "Аннотация"
             })
     else:
         report.append({
-            "status": "warn",
+            "status": "error",
             "msg": "В тексте отсутствует аннотация на английском языке (Abstract)",
             "section": "Аннотация"
         })
 
     # Проверка ключевых слов
     if keywords_ru_block:
+        print("DEBUG keywords_ru_block text:", keywords_ru_block)
         num = count_keywords(keywords_ru_block)
+        print(f"DEBUG keywords_ru_count: {num}")
         if num < 3 or num > 15:
+            msg = f"В русском языке количество ключевых слов вне диапазона 3–15 (найдено: {num})"
+            print("DEBUG report (keywords_ru):", msg)
             report.append({
-                "status": "warn",
-                "msg": f"В русском языке количество ключевых слов вне диапазона 3–15 (найдено: {num})",
+                "status": "error",
+                "msg": msg,
                 "section": "Ключевые слова"
             })
     else:
+        msg = f"В тексте отсутствует блок ключевых слов на русском языке"
+        print("DEBUG report (keywords_ru):", msg)
         report.append({
-            "status": "warn",
-            "msg": f"В тексте отсутствует блок ключевых слов на русском языке",
+            "status": "error",
+            "msg": msg,
             "section": "Ключевые слова"
         })
 
     if keywords_en_block:
+        print("DEBUG keywords_en_block text:", keywords_en_block)
         num = count_keywords(keywords_en_block)
+        print(f"DEBUG keywords_en_count: {num}")
         if num < 3 or num > 15:
+            msg = f"В английском языке количество ключевых слов вне диапазона 3–15 (найдено: {num})"
+            print("DEBUG report (keywords_en):", msg)
             report.append({
-                "status": "warn",
-                "msg": f"В английском языке количество ключевых слов вне диапазона 3–15 (найдено: {num})",
+                "status": "error",
+                "msg": msg,
                 "section": "Ключевые слова"
             })
     else:
+        msg = f"В тексте отсутствует блок ключевых слов на английском языке"
+        print("DEBUG report (keywords_en):", msg)
         report.append({
-            "status": "warn",
-            "msg": f"В тексте отсутствует блок ключевых слов на английском языке",
+            "status": "error",
+            "msg": msg,
             "section": "Ключевые слова"
         })
     return report
