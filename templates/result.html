@@ -28,22 +28,29 @@
         <div class="row">
           <div class="col-md-6">
             <span class="checklist-label mb-2 d-block">Замечания и рекомендации</span>
-            <ul class="list-group">
-              {% for item in report %}
-                <li class="list-group-item d-flex align-items-start border-0">
-                  {% if item.status == "error" %}
-                    <span class="result-icon err">&#10060;</span>
-                  {% elif item.status == "warn" %}
-                    <span class="result-icon warn">&#9888;&#65039;</span>
-                  {% elif item.status == "success" %}
-                    <span class="result-icon success">&#9989;</span>
-                  {% else %}
-                    <span class="result-icon info">&#128712;</span>
-                  {% endif %}
-                  <span class="ms-2">{{ item.msg }}</span>
-                </li>
-              {% endfor %}
-            </ul>
+
+            {% for section, items in report %}
+              <div class="mb-3">
+                <h5 class="mb-2">{{ section }}</h5>
+                <ul class="list-group mb-2">
+                  {% for item in items %}
+                    <li class="list-group-item d-flex align-items-start border-0">
+                      {% if item.status == "error" %}
+                        <span class="result-icon err">&#10060;</span>
+                      {% elif item.status == "warn" %}
+                        <span class="result-icon warn">&#9888;&#65039;</span>
+                      {% elif item.status == "success" %}
+                        <span class="result-icon success">&#9989;</span>
+                      {% else %}
+                        <span class="result-icon info">&#128712;</span>
+                      {% endif %}
+                      <span class="ms-2">{{ item.msg }}</span>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endfor %}
+
             <!-- Кнопка "Назад" внизу -->
             <a href="/" class="btn btn-light back-btn mt-4">Назад</a>
           </div>

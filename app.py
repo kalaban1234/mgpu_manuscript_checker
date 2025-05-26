@@ -1,17 +1,17 @@
-from fastapi import FastAPI, File, UploadFile, Request
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Request, UploadFile, File
 from fastapi.templating import Jinja2Templates
-from checker import check_docx
+from checker import check_docx, group_report
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/", response_class=None)
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-@app.post("/check", response_class=HTMLResponse)
+@app.post("/check")
 async def check(request: Request, file: UploadFile = File(...)):
-    content = await file.read()
-    report = check_docx(content)
-    return templates.TemplateResponse("result.html", {"request": request, "report": report})
+    file_bytes = await file.read()
+    report = check_docx(file_bytes)
+    grouped_report = group_report(report)
+    return templates.TemplateResponse("result.html", {"request": request, "report": grouped_report})
