@@ -410,7 +410,7 @@ def check_docx(file_bytes):
 
     def count_keywords(text):
         return len([x.strip() for x in text.replace('\n', ',').replace(';', ',').split(",") if x.strip()])
-
+    return report
 def extract_annotation_block(paragraphs, header, stop_header_patterns):
     start = -1
     header_pattern = re.compile(rf"^{header}[\s\.\:\-]*", re.IGNORECASE)
